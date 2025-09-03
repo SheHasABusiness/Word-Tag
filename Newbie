@@ -1,1 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Tag - Family & Fun Preview</title>
+<style>
+  body { font-family: 'Arial', sans-serif; max-width: 700px; margin: auto; padding: 20px; background: #f0f8ff; color: #333; transition: all 0.3s; }
+  h1 { text-align: center; color: #2e8b57; text-shadow: 1px 1px #a2d5a2; }
+  .story-box { border: 3px dashed #2e8b57; padding: 12px; border-radius: 12px; min-height: 100px; margin-top: 10px; background: #e0f7e0; font-size: 16px; transition: all 0.3s; }
+  button { margin: 6px 0; padding: 12px; border-radius: 12px; border: none; background: #b2f0b2; cursor: pointer; width: 100%; font-size: 16px; transition: 0.2s; }
+  button:hover { background: #90e090; transform: scale(1.05); }
+  .next-set { font-weight: bold; margin: 10px 0; color: #2e8b57; font-size: 18px; text-align: center; }
+  .control-btn { background: #c2f0c2; }
+  .control-btn:hover { background: #a2e0a2; transform: scale(1.05); }
+</style>
+</head>
+<body>
+<h1>🎉 Word Tag - Family & Fun Preview</h1>
+<p>Instructions: Choose a starter word to begin. Each player adds the 3 words in the drawn set to the story. The story ends when "THE END" appears in a set.</p>
+<div>
+  <h2>Starter Words</h2>
+  <div id="starter-buttons"></div>
+</div>
+<div class="next-set" id="next-set-display"></div>
+<div class="story-box" id="story"></div>
+<div id="set-buttons"></div>
+<button class="control-btn" onclick="resetGame()">🔄 Reset Game</button>
+<div>
+  <h2>Theme Selector</h2>
+  <select id="themeSelect" onchange="changeTheme()">
+    <option value="winter">Winter Party</option>
+    <option value="family">Family Time</option>
+    <option value="friends">Friends & Fun</option>
+    <option value="newyear">New Year</option>
+  </select>
+</div>
+<script>
+let starterWords = ["Family", "Friends", "Gathering"];
+
+let wordSets = [
+  ["Games 🎲", "Laughter 😂", "THE END 🎬"],
+  ["Stories 📖", "Snacks 🍿", "Fun 🥳"],
+  ["Photos 📸", "Music 🎶", "Memories 💖"],
+  ["Picnic 🧺", "Ball 🏀", "Running 🏃"],
+  ["Movies 🎥", "Board Games 🎯", "Snacks 🍪"]
+];
+
+let currentStory = [];
+let currentSetIndex = 0;
+
+const themeDecor = {
+  winter: ['❄️','⛄','🌨️'],
+  family: ['🏡','👨‍👩‍👧‍👦','🍿'],
+  friends: ['🎉','🎈','🥳'],
+  newyear: ['🎆','🥂','🕛']
+};
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function showStarterButtons() {
+  const container = document.getElementById('starter-buttons');
+  container.innerHTML = '';
+  starterWords.forEach(word => {
+    let btn = document.createElement('button');
+    btn.textContent = word;
+    btn.onclick = () => startGame(word);
+    container.appendChild(btn);
+  });
+}
+
+function startGame(word) {
+  currentStory = [word];
+  shuffleArray(wordSets);
+  currentSetIndex = 0;
+  updateStoryBox();
+  showNextSet();
+}
+
+function showNextSet() {
+  const container = document.getElementById('set-buttons');
+  const nextDisplay = document.getElementById('next-set-display');
+  container.innerHTML = '';
+  if (currentSetIndex >= wordSets.length) {
+    nextDisplay.innerText = '';
+    container.innerHTML = '<p>No more sets!</p>';
+    return;
+  }
+  let set = wordSets[currentSetIndex];
+  nextDisplay.innerText = `Next Set: ${set.join(', ')}`;
+  let btn = document.createElement('button');
+  btn.textContent = `Add these words to story`;
+  btn.onclick = () => addSetToStory(set);
+  container.appendChild(btn);
+}
+
+function addSetToStory(set) {
+  currentStory.push(...set);
+  updateStoryBox();
+  if (set.join(' ').includes('THE END')) {
+    document.getElementById('set-buttons').innerHTML = '<p>🎬 The story has ended!</p>';
+    document.getElementById('next-set-display').innerText = '';
+  } else {
+    currentSetIndex++;
+    showNextSet();
+  }
+}
+
+function updateStoryBox() {
+  const theme = document.getElementById('themeSelect').value;
+  const decorations = themeDecor[theme];
+  let decoratedStory = currentStory.map(word => `${decorations[Math.floor(Math.random() * decorations.length)]} ${word}`).join(' → ');
+  document.getElementById('story').innerText = decoratedStory;
+}
+
+function resetGame() {
+  currentStory = [];
+  currentSetIndex = 0;
+  document.getElementById('story').innerText = '';
+  document.getElementById('next-set-display').innerText = '';
+  showStarterButtons();
+  document.getElementById('set-buttons').innerHTML = '';
+}
+
+function changeTheme() {
+  const theme = document.getElementById('themeSelect').value;
+  if(theme === 'winter'){
+    document.body.style.background = 'linear-gradient(to bottom, #e0f7ff, #ccefff)';
+    document.body.style.color = '#005f7f';
+  } else if(theme === 'family'){
+    document.body.style.background = 'linear-gradient(to bottom, #fff8e1, #ffe0b2)';
+    document.body.style.color = '#5a3e1b';
+  } else if(theme === 'friends'){
+    document.body.style.background = 'linear-gradient(to bottom, #ffe6f7, #ffd1f0)';
+    document.body.style.color = '#b30086';
+  } else if(theme === 'newyear'){
+    document.body.style.background = 'linear-gradient(to bottom, #fffaf0, #f0e68c)';
+    document.body.style.color = '#b36b00';
+  }
+  updateStoryBox();
+}
+
+showStarterButtons();
+</script>
+</body>
+</html>
 
